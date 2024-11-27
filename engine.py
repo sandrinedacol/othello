@@ -10,16 +10,11 @@ class Engine():
         self.game = self.start_new_game()
         # tant que les conditions sont réunies, le jeu continue
         while self.game.in_progress:
-            # définition de la position du prochain pion posé
-            # si la couleur assignée à l'utilisateur est celle du prochain joueur
-            if self.user_color == self.game.player:
-                position = input('Your turn:')
-            # si le prochain joueur est l'ordinateur
-            else:
-                position = input('I play:')
-                print(f"I play {position}")
-            # La prochaine étape est lancée avec le prochain pion posé à cette position
-            self.game.play_next_step(position)
+            step_played = False
+            while not step_played:
+                position = self.choose_position()
+                # La prochaine étape est lancée avec le prochain pion posé à cette position
+                step_played = self.game.play_next_step(position)
         # une fois que les conditions d'arrêt de jeu changent le bool game.in_progress, on finit le jeu
         self.end_game()
 
@@ -38,6 +33,16 @@ class Engine():
     def start_new_game(self):
         _ = input('Ready?\n')           # met juste un temps de pause, l'utilisateur doit mettre entrée pour que ça lance la suite
         return Game()                   # crée une instance de game = une partie
+    
+    def choose_position(self):
+        # si la couleur assignée à l'utilisateur est celle du prochain joueur
+        if self.user_color == self.game.player:
+            position = input('Your turn:')
+        # si le prochain joueur est l'ordinateur
+        else:
+            position = input('I play:')
+            print(f"I play {position}")
+        return position
 
     def end_game(self):
         pass
