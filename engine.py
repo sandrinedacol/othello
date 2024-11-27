@@ -10,7 +10,7 @@ class Engine():
             if self.user_color == self.game.player:
                 position = input('Your turn:')
             else:
-                position = 'b4'
+                position = input('I play:')
                 print(f"I play {position}")
             self.game.play_next_step(position)
         self.end_game()
@@ -20,10 +20,10 @@ class Engine():
         user_color = user_color.strip().upper()
         if user_color == 'B':
             print("Ok, you're black, you start.\n")
-            return True
+            return False
         elif user_color == 'W':
             print("Ok, you're white, I start.\n")
-            return False
+            return True
         else:
             return self.ask_user_color()
         
