@@ -5,8 +5,11 @@ class Piece():
         self.is_on_board = False
     
     def add_on_board(self, position : str, color: bool):
-        self.index, self.column = int(position[1]), position[0].upper()
-        self.color = color
-        self.is_on_board = True
+        if self.is_on_board:
+            raise ValueError("Cette pièce est déjà sur l'échiquier !")
+        else:
+            self.index, self.column = int(position[1]), position[0].upper()
+            self.color = color
+            self.is_on_board = True
 
     

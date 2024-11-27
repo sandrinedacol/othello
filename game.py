@@ -22,9 +22,11 @@ class Game():
         piece = self.all_pieces[self.step]
         piece.add_on_board(position, self.player)
         self.board.add_piece(piece)
+        if self.step > 3:
+            print(self.board.df)
         
     def play_next_step(self, position):
-        self.verify_position()
+        self.verify_position(position)
         self.put_piece_on_board(position)
         self.turn_pieces_over()
         self.check_end_game()
@@ -34,7 +36,7 @@ class Game():
     def verify_position(self, position):
         pass
 
-    def turn_pieces_over():
+    def turn_pieces_over(self):
         pass
 
     def check_end_game(self):
