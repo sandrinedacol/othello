@@ -47,17 +47,28 @@ class Game():
         
     def verify_position(self, position):
         is_consistent = True
-        for check_condition in [self.check_if_position_is_empty]:
+        for check_condition in [self.verify_if_position_exists, self.check_if_position_is_empty]:
             is_consistent = check_condition(position)
             if not is_consistent:
                 break
         return is_consistent
 
-    def turn_pawns_over(self, position):
-        pass
-
-    def check_end_game(self):
-        pass
+    def verify_if_position_exists(self,position):
+        df_local=self.board.df.copy()
+        if not len(position)==2:
+            output=False
+        else:
+            try :
+                col=position[0].upper()
+                ind=int(position[1])
+                if ind in df_local.index and col in df_local.columns:
+                    output=True
+                else :
+                    output=False
+            except:
+                output = False
+        return output
+    
 
     def check_if_position_is_empty(self, position):
         ind, col = int(position[1]), position[0].upper()
@@ -66,4 +77,11 @@ class Game():
         else:
             output = False
         return output
+
+    def turn_pawns_over(self, position):
+        pass
+
+    def check_end_game(self):
+        pass
+
         
