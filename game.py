@@ -53,8 +53,10 @@ class Game():
         pass
 
     def check_if_position_is_empty(self, position):
-        cond = False
         ind, col = position[1], position[0].upper()
         if self.board.df.loc[ind, col].isna():
-            cond = True
+            output = True
+        else:
+            output = False
+        return output
         
