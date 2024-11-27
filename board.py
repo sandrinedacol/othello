@@ -1,7 +1,7 @@
 import pandas as pd
 
 class Board():
-
+    '''Creation de l'echiquier'''
     def __init__(self):
         # représentation de l'échiquier par un dataframe, ligne = chiffre colonnes = lettre
         self.df = pd.DataFrame(index = list(range(1,9)), columns = list('ABCDEFGH'))

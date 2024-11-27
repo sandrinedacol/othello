@@ -32,23 +32,34 @@ class Game():
         
     def play_next_step(self, position):
         # est-ce que le joueur a le droit de poser le pion à cette position ? 
-        self.verify_position(position)
-        # si oui, on ajoute le pion sur l'échiquier
-        self.put_pawn_on_board(position)
-        # puis on retourne les pions à retourner
-        self.turn_pawns_over(position)
-        # on vérifie si les conditions d'arrêt de la partie sont atteintes
-        self.check_end_game()
-        # on passe à l'étape d'après et on change le joueur qui doit jouer l'étape d'après
-        self.step += 1
-        self.player = not self.player               
+        is_consistent = self.verify_position(position)
+        if is_consistent:
+            # si oui, on ajoute le pion sur l'échiquier
+            self.put_pawn_on_board(position)
+            # puis on retourne les pions à retourner
+            self.turn_pawns_over(position)
+            # on vérifie si les conditions d'arrêt de la partie sont atteintes
+            self.check_end_game()
+            # on passe à l'étape d'après et on change le joueur qui doit jouer l'étape d'après
+            self.step += 1
+            self.player = not self.player
+        return is_consistent
         
     def verify_position(self, position):
-        pass
+        is_consistent = True
+        return is_consistent
 
     def turn_pawns_over(self, position):
         pass
 
     def check_end_game(self):
         pass
+
+    def check_if_position_is_empty(self, position):
+        ind, col = position[1], position[0].upper()
+        if self.board.df.loc[ind, col].isna():
+            output = True
+        else:
+            output = False
+        return output
         
