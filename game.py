@@ -47,6 +47,10 @@ class Game():
         
     def verify_position(self, position):
         is_consistent = True
+        for check_condition in [self.check_if_position_is_empty]:
+            is_consistent = check_condition(position)
+            if not is_consistent:
+                break
         return is_consistent
 
     def turn_pawns_over(self, position):
@@ -56,8 +60,8 @@ class Game():
         pass
 
     def check_if_position_is_empty(self, position):
-        ind, col = position[1], position[0].upper()
-        if self.board.df.loc[ind, col].isna():
+        ind, col = int(position[1]), position[0].upper()
+        if pd.isna(self.board.df.at[ind, col]):
             output = True
         else:
             output = False
