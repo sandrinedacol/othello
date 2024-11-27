@@ -15,15 +15,16 @@ class Game():
     def add_initial_pawns(self):
         # pour chaque position, on joue une étape fictive :
         for position in ['d4', 'e4', 'e5', 'd5']:       # la liste est construite de manière à ce que les pions soient bien disposés : noir blanc noir blanc
-            self.put_pawn_on_board(position)            # on place le pion sur l'échiquier
+            self.check_format(position)           # assigne la bonne valeur à self.position
+            self.put_pawn_on_board()            # on place le pion sur l'échiquier
             self.step += 1                              # on passe à l'étape d'après
             self.player = not self.player               # on change le joueur qui doit jouer l'étape d'après
 
-    def put_pawn_on_board(self, position):
+    def put_pawn_on_board(self):
         # on choisit de quel pion on parle, via son index dans la liste de tous les pions
         pawn = self.all_pawns[self.step]
         # on change les attributs de ce pion
-        pawn.add_on_board(position, self.player)
+        pawn.add_on_board(self.position, self.player)
         # on ajoute le pion sur l'échiquier
         self.board.add_pawn(pawn)
         # on montre le résulat du pion posé à l'utilisateur
@@ -32,12 +33,12 @@ class Game():
         
     def play_next_step(self, position):
         # est-ce que le joueur a le droit de poser le pion à cette position ? 
-        is_consistent = self.verify_position(position)
+        is_consistent = self.check_position(position)
         if is_consistent:
             # si oui, on ajoute le pion sur l'échiquier
-            self.put_pawn_on_board(position)
+            self.put_pawn_on_board()
             # puis on retourne les pions à retourner
-            self.turn_pawns_over(position)
+            self.turn_pawns_over()
             # on vérifie si les conditions d'arrêt de la partie sont atteintes
             self.check_end_game()
             # on passe à l'étape d'après et on change le joueur qui doit jouer l'étape d'après
@@ -45,41 +46,38 @@ class Game():
             self.player = not self.player
         return is_consistent
         
-    def verify_position(self, position):
-        is_consistent = True
-        for check_condition in [self.verify_and_convert_position_to_tuple,self.verify_if_position_exists, self.verify_if_position_is_empty]:
-            is_consistent = check_condition(position)
+    def check_position(self, position):
+        is_consistent = self.convert_position_to_tuple(position)
+        for check_condition in [
+            self.check_if_position_exists,
+            self.check_if_position_is_empty
+            ]:
+            is_consistent = check_condition()
             if not is_consistent:
                 break
         return is_consistent
     
-    def verify_and_convert_position_to_tuple(self,position):
-        if not len(position)==2:
-            output=False
-        else:
+    def convert_position_to_tuple(self, position):
+        is_consistent = len(position) == 2
+        if is_consistent:
             try :
-                col=position[0].upper()
-                ind=int(position[1])
-                self.position=ind,col
-                output=True
-            except:
-                output=False
-        return output
+                self.position = int(position[1]), position[0].upper()
+            except ValueError:
+                try:
+                    self.position=int(position[0]), position[1].upper()
+                except ValueError:
+                    is_consistent = False
+        return is_consistent
 
-    def verify_if_position_exists(self,position):
-        df_local=self.board.df.copy()
-        output = self.position[0] in df_local.index and self.position[1] in df_local.columns
-        return output
+    def check_if_position_exists(self):
+        index_exists = self.position[0] in self.board.df.index
+        column_exists = self.position[1] in self.board.df.columns
+        return index_exists and column_exists
 
+    def check_if_position_is_empty(self):
+        return pd.isna(self.board.df.at[self.position[0], self.position[1]])
 
-    def verify_if_position_is_empty(self, position):
-        if pd.isna(self.board.df.at[self.position[0], self.position[1]]):
-            output = True
-        else:
-            output = False
-        return output
-
-    def turn_pawns_over(self, position):
+    def turn_pawns_over(self):
         pass
 
     def check_end_game(self):
