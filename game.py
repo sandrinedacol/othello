@@ -47,29 +47,33 @@ class Game():
         
     def verify_position(self, position):
         is_consistent = True
-        for check_condition in [self.verify_if_position_exists, self.check_if_position_is_empty]:
+        for check_condition in [self.verify_and_convert_position_to_tuple,self.verify_if_position_exists, self.verify_if_position_is_empty]:
             is_consistent = check_condition(position)
             if not is_consistent:
                 break
         return is_consistent
-
-    def verify_if_position_exists(self,position):
-        df_local=self.board.df.copy()
+    
+    def verify_and_convert_position_to_tuple(self,position):
         if not len(position)==2:
             output=False
         else:
             try :
                 col=position[0].upper()
                 ind=int(position[1])
-                output = ind in df_local.index and col in df_local.columns
+                self.position=ind,col
+                output=True
             except:
-                output = False
+                output=False
         return output
-    
 
-    def check_if_position_is_empty(self, position):
-        ind, col = int(position[1]), position[0].upper()
-        if pd.isna(self.board.df.at[ind, col]):
+    def verify_if_position_exists(self,position):
+        df_local=self.board.df.copy()
+        output = self.position[0] in df_local.index and self.position[1] in df_local.columns
+        return output
+
+
+    def verify_if_position_is_empty(self, position):
+        if pd.isna(self.board.df.at[self.position[0], self.position[1]]):
             output = True
         else:
             output = False
