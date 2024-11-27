@@ -61,10 +61,7 @@ class Game():
             try :
                 col=position[0].upper()
                 ind=int(position[1])
-                if ind in df_local.index and col in df_local.columns:
-                    output=True
-                else :
-                    output=False
+                output = ind in df_local.index and col in df_local.columns
             except:
                 output = False
         return output

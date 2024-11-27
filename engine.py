@@ -22,10 +22,10 @@ class Engine():
         user_color = input('Do you want to be Master of Blacks (B) or Whites (W)?')
         user_color = user_color.strip().upper()
         if user_color == 'B':
-            print("Ok, you're black, you start.\n")
+            print("Ok, you're black (X), you start.\n")
             return False             # noir = false
         elif user_color == 'W':
-            print("Ok, you're white, I start.\n")
+            print("Ok, you're white (O), I start.\n")
             return True             # blanc = true
         else:
             return self.ask_user_color()
