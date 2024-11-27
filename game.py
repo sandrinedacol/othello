@@ -47,7 +47,7 @@ class Game():
         
     def verify_position(self, position):
         is_consistent = True
-        for check_condition in [self.verify_and_convert_position_to_tuple,self.verify_if_position_exists, self.verify_if_position_is_empty]:
+        for check_condition in [self.verify_and_convert_position_to_tuple,self.verify_if_position_exists, self.verify_if_position_is_empty,self.check_neighbors]:
             is_consistent = check_condition(position)
             if not is_consistent:
                 break
@@ -78,6 +78,18 @@ class Game():
         else:
             output = False
         return output
+    
+    def check_neighbors(self,position):
+        df_local=self.board.df.copy()
+        relative_position=[-1,0,+1]
+        neighbors_relative_position=[]
+        for ind in relative_position:
+            for col in relative_position :
+                neighbors_relative_position.append((self.position[0]+ind,self.position[1]+col))
+        print(neighbors_relative_position)
+        # if self.position[0]+1<df_local.index.max():
+        #     # print (df_local.loc[[self.position[0]+1],[self.position[1]]])
+        return True
 
     def turn_pawns_over(self, position):
         pass
