@@ -27,8 +27,8 @@ class Game():
         # on ajoute le pion sur l'échiquier
         self.board.add_pawn(pawn)
         # on montre le résulat du pion posé à l'utilisateur
-        if self.step > 3:
-            print(self.board)
+        # if self.step > 3:
+        #     print(self.board)
         
     def play_next_step(self, position):
         # est-ce que le joueur a le droit de poser le pion à cette position ? 
@@ -44,7 +44,26 @@ class Game():
         self.player = not self.player               
         
     def verify_position(self, position):
-        pass
+        self.verify_if_position_exists(position)
+
+    def verify_if_position_exists(self,position):
+        df_local=self.board.df.copy()
+        if not len(position)==2:
+            output=False
+        else:
+            try :
+                col=position[0].upper()
+                ind=int(position[1])
+                if ind in df_local.index and col in df_local.columns:
+                    output=True
+                else :
+                    output=False
+            except:
+                output = False
+        print(df_local.index.to_list())
+        print(output)
+        return output,ind,col
+
 
     def turn_pawns_over(self, position):
         pass
