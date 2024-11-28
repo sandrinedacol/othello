@@ -29,9 +29,13 @@ class Game():
             print(self.board)
         
     def play_next_step(self, position):
-        is_consistent = self.convert_position_to_tuple(position)
-        if is_consistent:                                   
-            is_consistent = self.check_position()           # est-ce que le joueur a le droit de poser le pion à cette position ? 
+        if position != None:
+            self.compute_best_position()
+            is_consistent = True
+        else:
+            is_consistent = self.convert_position_to_tuple(position)
+            if is_consistent:                                   
+                is_consistent = self.check_position()       # est-ce que le joueur a le droit de poser le pion à cette position ? 
         if is_consistent:
             self.put_pawn_on_board()                        # si oui, on ajoute le pion sur l'échiquier
             self.turn_pawns_over()                          # puis on retourne les pions à retourner
@@ -100,3 +104,6 @@ class Game():
                 white_score += empty_squares
         return black_score, white_score
         
+    def compute_best_position(self):
+        
+        return (3, 'D')

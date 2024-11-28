@@ -14,17 +14,16 @@ class Engine():
     def play_game(self):
         self.game = Game()
         while self.game.in_progress:                    # tant que les conditions sont réunies, le jeu continue
-
-            if self.game.step == 5:
-                self.game.in_progress = False
-
             step_played = False
             while not step_played:
-                position = self.choose_position()
-                if position.strip().lower() in ['q', 'quit', 'exit', 'exit()']:     # si l'utilisateur entre 'q' ou 'quit' ou 'exit' ou 'exit()',
-                    return None
-                else:                                                               # sinon
-                    step_played = self.game.play_next_step(position)                # La prochaine étape est lancée avec le prochain pion posé à cette position
+                if self.user_color == self.game.player:     # si la couleur assignée à l'utilisateur est celle du prochain joueur
+                    position = input('Your turn:')          # si le prochain joueur est l'ordinateur
+                    if position.strip().lower() in ['q', 'quit', 'exit', 'exit()']:     # si l'utilisateur entre 'q' ou 'quit' ou 'exit' ou 'exit()',
+                        return None
+                    else:                                                               # sinon
+                        step_played = self.game.play_next_step(position)                # La prochaine étape est lancée avec le prochain pion posé à cette position
+                else:
+                    step_played = self.game.play_next_step(None)
         self.end_game()                                                             # une fois que les conditions d'arrêt de jeu changent le bool 'game.in_progress', on finit le jeu
         
     def ask_for_play_again(self):     
@@ -47,8 +46,7 @@ class Engine():
         if self.user_color == self.game.player:     # si la couleur assignée à l'utilisateur est celle du prochain joueur
             position = input('Your turn:')          # si le prochain joueur est l'ordinateur
         else:
-            position = input('I play:')
-            print(f"I play {position}")
+            position = self.game.compute_best_position()
         return position
 
     def end_game(self):
