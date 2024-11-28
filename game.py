@@ -60,6 +60,7 @@ class Game():
             try :
                 col=position[0].upper()
                 ind=int(position[1])
+
                 self.position=ind,col
                 output=True
             except:
@@ -81,15 +82,50 @@ class Game():
     
     def check_neighbors(self,position):
         df_local=self.board.df.copy()
-        relative_position=[-1,0,+1]
-        neighbors_relative_position=[]
-        for ind in relative_position:
-            for col in relative_position :
-                neighbors_relative_position.append((self.position[0]+ind,self.position[1]+col))
-        print(neighbors_relative_position)
-        # if self.position[0]+1<df_local.index.max():
-        #     # print (df_local.loc[[self.position[0]+1],[self.position[1]]])
-        return True
+
+        #Correspondance lettre position
+        dict_col={}
+        n=0
+        for i in df_local.columns.tolist():
+            dict_col[i]=n
+            n+=1
+
+        #Conversion position en int
+        position_local=(self.position[0]-1,dict_col[self.position[1]])
+
+        #Définition position relative voisins --> sort une liste des positions des plus proches voisins en coordonnées df
+        neighbors_relative_position=[(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)]
+        neighbor_df_position=[]
+        for relative_position in neighbors_relative_position:
+            neighbor_position_col=position_local[1]+relative_position[1]
+            neighbor_position_ind=position_local[0]+relative_position[0]
+            if 0<=neighbor_position_col<8 and 0<=neighbor_position_ind<8 :
+                neighbor_df_position.append(((df_local.index[neighbor_position_ind],df_local.columns[neighbor_position_col]),relative_position))
+
+        #Valeur du df de chaque proche voisin si non nul --> sort une liste (positions,valeurs) des plus proches voisins du df uniquement pour celles non nulles. 
+        neighbor_df_values=[]
+        for df_position in neighbor_df_position:
+            value=df_local.at[df_position[0][0],df_position[0][1]]
+            if not pd.isna(value):
+                neighbor_df_values.append((df_position[0],df_position[1],value))
+
+        #Condition du jeu : retourne vrai si au moins une des couleurs de la liste 
+        if self.player==True:
+            symbol="O"
+        else:
+            symbol="X"
+        is_consistent=False
+        neighbor_df_opposite_values=[]
+        for value in neighbor_df_values:
+            if not value[2]==symbol:
+                neighbor_df_opposite_values.append((value[0],value[1],value[2]))
+                is_consistent=True
+
+        print(position,"\n",neighbor_df_position,"\n",neighbor_df_values,"\n",neighbor_df_opposite_values,is_consistent)
+
+        return is_consistent
+    
+
 
     def turn_pawns_over(self, position):
         pass
