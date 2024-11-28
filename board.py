@@ -4,7 +4,7 @@ class Board():
     '''Creation de l'echiquier'''
     def __init__(self):
         # représentation de l'échiquier par un dataframe, ligne = chiffre colonnes = lettre
-        self.df = pd.DataFrame(index = list(range(1,9)), columns = list('ABCDEFGH'))
+        self.df = pd.DataFrame(index = list(range(1,9)), columns = list('ABCDEFGH')).fillna('')
 
     def add_pawn(self, pawn):
         # choix du marqueur à ajouter dans la case

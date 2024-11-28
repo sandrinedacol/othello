@@ -1,3 +1,5 @@
+import numpy as np
+
 from board import *
 from pawn import *
 
@@ -27,7 +29,9 @@ class Game():
             print(self.board)
         
     def play_next_step(self, position):
-        is_consistent = self.check_position(position)       # est-ce que le joueur a le droit de poser le pion à cette position ? 
+        is_consistent = self.convert_position_to_tuple(position)
+        if is_consistent:                                   
+            is_consistent = self.check_position()           # est-ce que le joueur a le droit de poser le pion à cette position ? 
         if is_consistent:
             self.put_pawn_on_board()                        # si oui, on ajoute le pion sur l'échiquier
             self.turn_pawns_over()                          # puis on retourne les pions à retourner
@@ -36,8 +40,7 @@ class Game():
             self.player = not self.player                   # et on change le joueur qui doit jouer l'étape d'après
         return is_consistent
         
-    def check_position(self, position):
-        is_consistent = self.convert_position_to_tuple(position)
+    def check_position(self):
         for check_condition in [
             self.check_if_position_exists,
             self.check_if_position_is_empty
@@ -65,12 +68,22 @@ class Game():
         return index_exists and column_exists
 
     def check_if_position_is_empty(self):
-        return pd.isna(self.board.df.at[self.position[0], self.position[1]])
+        value = self.board.df.at[self.position[0], self.position[1]]
+        return value == ''
 
     def turn_pawns_over(self):
         pass
 
     def check_end_game(self):
-        pass
+        # modifie game.in_progress si les conditions de fin de partie sont réunies
+        empty_squares = [(self.board.df.index[x], self.board.df.columns[y]) for x, y in zip(*np.where(self.board.df.values == ''))]
+        is_consistent = False
+        for square in empty_squares:
+            self.position = square
+            is_consistent = self.check_position()   # à remplacer par les 2 méthodes de Romain : 'adjcent' et 'encadre'
+            if is_consistent:
+                break
+        if not is_consistent:
+            self.in_progress = False
 
         
