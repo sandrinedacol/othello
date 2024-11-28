@@ -86,4 +86,7 @@ class Game():
         if not is_consistent:
             self.in_progress = False
 
+    def compute_score():
+        # return black_score, white_score
+        return 2, 3
         
