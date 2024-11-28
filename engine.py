@@ -41,13 +41,6 @@ class Engine():
             return True             # blanc = true
         else:
             return self.ask_user_color()
-    
-    def choose_position(self):
-        if self.user_color == self.game.player:     # si la couleur assignée à l'utilisateur est celle du prochain joueur
-            position = input('Your turn:')          # si le prochain joueur est l'ordinateur
-        else:
-            position = self.game.compute_best_position()
-        return position
 
     def end_game(self):
         black_score, white_score = self.game.compute_score()

@@ -28,8 +28,9 @@ class Game():
         if self.step > 3:                                   # on montre le résulat du pion posé à l'utilisateur
             print(self.board)
         
+        
     def play_next_step(self, position):
-        if position != None:
+        if position == None:
             self.compute_best_position()
             is_consistent = True
         else:
@@ -38,7 +39,7 @@ class Game():
                 is_consistent = self.check_position()       # est-ce que le joueur a le droit de poser le pion à cette position ? 
         if is_consistent:
             self.put_pawn_on_board()                        # si oui, on ajoute le pion sur l'échiquier
-            self.turn_pawns_over()                          # puis on retourne les pions à retourner
+            self.turn_pawns_over()                      # puis on retourne les pions à retourner
             self.check_end_game()                           # on vérifie si les conditions d'arrêt de la partie sont atteintes
             self.step += 1                                  # on passe à l'étape d'après 
             self.player = not self.player                   # et on change le joueur qui doit jouer l'étape d'après
@@ -105,5 +106,14 @@ class Game():
         return black_score, white_score
         
     def compute_best_position(self):
-        
-        return (3, 'D')
+        consistent_positions = [] # à faire : pour toutes les positions, celles qui passent les conditions sont retenues
+        best_position, best_score = None, 0
+        for pos in consistent_positions:
+            fictive_board = Board()
+            fictive_board.df = self.board.df.copy()
+            self.position = pos
+            n_turned_pawns = 0 # à remplacer par le calcul des pions qui seraient retournés (effectué sur fictive_board)
+            if n_turned_pawns > best_score:
+                best_position, best_score = pos, n_turned_pawns
+        # self.position = best_position
+        _ = self.convert_position_to_tuple(input("position du PC:"))        # juste le temps d'écrire le reste
