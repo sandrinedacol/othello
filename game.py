@@ -69,14 +69,14 @@ class Game():
 
     def check_if_position_is_empty(self):
         value = self.board.df.at[self.position[0], self.position[1]]
-        return value == ''
+        return value == ' '
 
     def turn_pawns_over(self):
         pass
 
     def check_end_game(self):
         # modifie game.in_progress si les conditions de fin de partie sont réunies
-        empty_squares = [(self.board.df.index[x], self.board.df.columns[y]) for x, y in zip(*np.where(self.board.df.values == ''))]
+        empty_squares = [(self.board.df.index[x], self.board.df.columns[y]) for x, y in zip(*np.where(self.board.df.values == ' '))]
         is_consistent = False
         for square in empty_squares:
             self.position = square
