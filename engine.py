@@ -14,6 +14,10 @@ class Engine():
     def play_game(self):
         self.game = Game()
         while self.game.in_progress:                    # tant que les conditions sont réunies, le jeu continue
+
+            if self.game.step == 5:
+                self.game.in_progress = False
+
             step_played = False
             while not step_played:
                 position = self.choose_position()
@@ -54,12 +58,13 @@ class Engine():
         else:
             user_score, machine_score = black_score, white_score
         if user_score > machine_score:
-            print(f"You won {user_score}, {machine_score}.\n")
+            self.return_congrats()
+            print(f"You won {user_score} - {machine_score}.\n")
         elif user_score == machine_score:
-            print(f"Draw : {user_score} - {machine_score}.\n")
+            print(f"\nDraw : {user_score} - {machine_score}.\n")
         else:
             self.return_game_over()
-            print(f"You lost {user_score}, {machine_score}.\n")
+            print(f"You lost {user_score} - {machine_score}.\n")
 
     def return_congrats(self):
         print("\n\n ▗▄▄▖ ▗▄▖ ▗▖  ▗▖ ▗▄▄▖▗▄▄▖  ▗▄▖▗▄▄▄▖▗▄▄▖    \n▐▌   ▐▌ ▐▌▐▛▚▖▐▌▐▌   ▐▌ ▐▌▐▌ ▐▌ █ ▐▌       \n▐▌   ▐▌ ▐▌▐▌ ▝▜▌▐▌▝▜▌▐▛▀▚▖▐▛▀▜▌ █  ▝▀▚▖    \n▝▚▄▄▖▝▚▄▞▘▐▌  ▐▌▝▚▄▞▘▐▌ ▐▌▐▌ ▐▌ █ ▗▄▄▞▘\n\n")

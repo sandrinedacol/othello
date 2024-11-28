@@ -86,7 +86,17 @@ class Game():
         if not is_consistent:
             self.in_progress = False
 
-    def compute_score():
+    def compute_score(self):
         # return black_score, white_score
-        return 2, 3
+        board_array = self.board.df.to_numpy()
+        values, counts = np.unique(board_array, return_counts=True)
+        black_score = counts[np.where(values=='X')[0][0]]
+        white_score = counts[np.where(values=='O')[0][0]]
+        if black_score != white_score:
+            empty_squares = counts[np.where(values==' ')[0][0]]
+            if black_score > white_score:
+                black_score += empty_squares
+            else:
+                white_score += empty_squares
+        return black_score, white_score
         
