@@ -13,6 +13,10 @@ class Engine():
             step_played = False
             while not step_played:
                 position = self.choose_position()
+                # si l'utilisateur entre 'q' ou 'quit' ou 'exit' ou 'exit()', on quitte la partie
+                if position.strip().lower() in ['q', 'quit', 'exit', 'exit()']:
+                    step_played = True
+                    break
                 # La prochaine étape est lancée avec le prochain pion posé à cette position
                 step_played = self.game.play_next_step(position)
         # une fois que les conditions d'arrêt de jeu changent le bool game.in_progress, on finit le jeu
