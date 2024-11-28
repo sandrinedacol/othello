@@ -4,12 +4,14 @@ import pandas as pd
 class Game():
 
     def __init__(self):
+        self.markers = {True: 'O', False: 'X'}
         self.in_progress = True
         self.board = pd.DataFrame(index = list(range(1,9)), columns = list('ABCDEFGH'))
         self.step = 0
         self.color = False
         self.position = None, None
         self.add_initial_pawns()
+        
 
     def convert_position_to_tuple(self, position):
         have_good_format = len(position) == 2
@@ -22,10 +24,7 @@ class Game():
                 except ValueError:
                     have_good_format = False
         return have_good_format
-    
-    def put_pawn_on_board(self):
-        markers = {True: 'O', False: 'X'}
-        self.board.at[self.position[0], self.position[1]] = markers[self.color]
+
 
     def add_initial_pawns(self):
         for position in ['d4', 'e4', 'e5', 'd5']:
@@ -35,6 +34,8 @@ class Game():
             self.color = not self.color
         print(self.board)
 
+
+
     def define_user_position(self, position):
         have_good_format = self.convert_position_to_tuple(position)
         if not have_good_format:
@@ -42,7 +43,8 @@ class Game():
         else:                         
             for check_condition in [
             self.check_if_position_exists,
-            self.check_if_position_is_empty
+            self.check_if_position_is_free,
+            self.check_if_surrounded_pawns
             ]:
                 is_consistent = check_condition()
                 if not is_consistent:
@@ -54,14 +56,38 @@ class Game():
         column_exists = self.position[1] in self.board.columns
         return index_exists and column_exists
 
-    def check_if_position_is_empty(self):
+    def check_if_position_is_free(self):
         return pd.isna(self.board.at[self.position[0], self.position[1]])
 
-    def define_computer_position(self):
-        self.compute_best_position()
-        
-    def turn_pawns_over(self):
-        pass
+    def check_if_surrounded_pawns(self):
+        opponent_color = self.markers[not self.color]
+        self.pawns_to_reverse = []
+
+        def check_one_direction(delta_idx, delta_col):
+            columns = self.board.columns.tolist()
+            indexes = self.board.index.tolist()
+            pawns_to_reverse = []
+            idx, col = self.position
+            marker = opponent_color
+            while marker == opponent_color:
+                i = indexes.index(idx)
+                idx = indexes[i + delta_idx]
+                j = columns.index(col)
+                col = columns[j + delta_col]
+                marker = self.board[col][idx]
+                if marker == opponent_color:
+                    pawns_to_reverse.append((idx, col))
+            if marker == self.markers[self.color]:
+                self.pawns_to_reverse += pawns_to_reverse
+
+        for direction in [(0,1), (0,-1), (1,0), (-1,0), (1,1), (1,-1), (-1,1), (-1,-1)]:
+            check_one_direction(*direction)
+
+        return len(self.pawns_to_reverse) > 0
+
+
+
+
 
     def play_step(self):
         self.put_pawn_on_board()
@@ -69,6 +95,14 @@ class Game():
         self.check_end_game()
         self.step += 1 
         self.color = not self.color
+
+    def put_pawn_on_board(self):
+        self.board.at[self.position[0], self.position[1]] = self.markers[self.color]
+
+    def turn_pawns_over(self):
+        marker = self.markers[self.color]
+        for pawn_position in self.pawns_to_reverse:
+            self.board.at[pawn_position] = marker
         
     def check_end_game(self):
         empty_squares = [(self.board.index[x], self.board.columns[y]) for x, y in zip(*np.where(pd.isna(self.board.values)))]
@@ -80,6 +114,10 @@ class Game():
                 break
         if not is_consistent:
             self.in_progress = False
+
+
+
+
 
     def compute_score(self):
         board_array = self.board.to_numpy()
@@ -95,6 +133,12 @@ class Game():
         return black_score, white_score
         
     
+
+
+    def define_computer_position(self):
+        self.compute_best_position()
+        self.check_if_surrounded_pawns()
+        
     def compute_best_position(self):
         consistent_positions = [] # à faire : pour toutes les positions, celles qui passent les conditions sont retenues
         best_position, best_score = None, 0

@@ -6,23 +6,11 @@ class Engine():
     def __init__(self):
         print('\nWelcome to the most beautiful Othello game ever!\n')
         self.user_color = self.ask_user_color()
-        _ = input('Ready?\n') 
+        # _ = input('Ready?\n') 
         self.quit = False
         while not self.quit:
             self.play_game()
             self.quit = not self.ask_for_play_again()
-
-    def ask_user_color(self):
-        user_color = input('Do you want to be Master of Blacks (B) or Whites (W)? ')
-        user_color = user_color.strip().upper()
-        if user_color == 'B':
-            print("Ok, you're black (symbol: X), you start.\n")
-            return False
-        elif user_color == 'W':
-            print("Ok, you're white (symbol: O), I start.\n")
-            return True
-        else:
-            return self.ask_user_color()
 
 
     def play_game(self):
@@ -43,6 +31,27 @@ class Engine():
         self.end_game() 
 
 
+
+    def ask_user_color(self):
+        # user_color = input('Do you want to be Master of Blacks (B) or Whites (W)? ')
+        user_color = 'b'
+
+        user_color = user_color.strip().upper()
+        if user_color == 'B':
+            print("Ok, you're black (symbol: X), you start.\n")
+            return False
+        elif user_color == 'W':
+            print("Ok, you're white (symbol: O), I start.\n")
+            return True
+        else:
+            return self.ask_user_color()
+        
+
+    def ask_for_play_again(self):     
+        again = input("\nPlay again? [Y/n]\n")
+        return again.strip().lower() in ['y', 'yes', 'oui', 'o', '']
+    
+
     def end_game(self):
         black_score, white_score = self.game.compute_score()
         if self.user_color:
@@ -57,11 +66,6 @@ class Engine():
         else:
             self.return_game_over()
             print(f"You lost {user_score} - {machine_score}.\n")
-
-
-    def ask_for_play_again(self):     
-        again = input("\nPlay again? [Y/n]\n")
-        return again.strip().lower() in ['y', 'yes', 'oui', 'o', '']
 
 
     def return_congrats(self):
