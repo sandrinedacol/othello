@@ -1,9 +1,6 @@
 import numpy as np
 import pandas as pd
 
-from board import *
-from pawn import *
-
 class Game():
 
     def __init__(self):
@@ -108,4 +105,5 @@ class Game():
             if n_turned_pawns > best_score:
                 best_position, best_score = pos, n_turned_pawns
         # self.position = best_position
-        _ = self.convert_position_to_tuple(input("position du PC:"))        # juste le temps d'écrire le reste
+        _ = self.convert_position_to_tuple(input("\n[dev mode] position du PC: "))        # juste le temps d'écrire le reste
+        print(f'\nI play {self.position[1]}{self.position[0]}')

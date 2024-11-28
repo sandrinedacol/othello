@@ -4,7 +4,7 @@ class Engine():
 
 
     def __init__(self):
-        print('\nWelcome to the most beautiful Othello game ever!\n\n')
+        print('\nWelcome to the most beautiful Othello game ever!\n')
         self.user_color = self.ask_user_color()
         _ = input('Ready?\n') 
         self.quit = False
@@ -13,7 +13,7 @@ class Engine():
             self.quit = not self.ask_for_play_again()
 
     def ask_user_color(self):
-        user_color = input('Do you want to be Master of Blacks (B) or Whites (W)?')
+        user_color = input('Do you want to be Master of Blacks (B) or Whites (W)? ')
         user_color = user_color.strip().upper()
         if user_color == 'B':
             print("Ok, you're black (symbol: X), you start.\n")
@@ -31,7 +31,7 @@ class Engine():
             if self.user_color == self.game.color:
                 position_is_found = False
                 while not position_is_found:
-                    position = input('Your turn:')
+                    position = input("\nIt's your call: ")
                     if position.strip().lower() in ['q', 'quit', 'exit', 'exit()']:
                         return None
                     else: 
@@ -39,6 +39,7 @@ class Engine():
             else:
                 self.game.define_computer_position()
             self.game.play_step()
+            print(self.game.board)
         self.end_game() 
 
 
