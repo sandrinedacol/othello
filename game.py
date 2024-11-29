@@ -90,9 +90,13 @@ class Game():
         Fait la liste des voisins existants (max 9 voisins). 
         Pour chaque voisin existant, ajoute dans une liste la position du voisin dans le df et la position relative par rapport à la case testée
         Puis pour chaque voisin existant, controle sa valeur dans le df, et si elle est NON NUL, ajoute dans une liste la position df, relative et sa valeur 
-        Puis convertit la couleur du nouveau pion en valeur "X" ou "O" et la compare à chaque valeur des voisins existants non nul
-        Ajoute dans une liste (position df, relative, valeur) pour chaque pion dont la valeur est différente de valeur du nouveau pion
-        Si au moins une des valeurs des voisins est différente de la valeur du nouveau pion, retourne True. 
+        Puis convertit la couleur du nouveau pion en valeur True ("O") ou False ("X") et la compare à chaque valeur des voisins existants non nul
+        Ajoute dans une liste_1 (position df, relative, valeur) pour chaque pion dont la valeur est différente de valeur du nouveau pion
+        Ajoute dans une liste_2(position df, relative, valeur) pour chaque pion dont la valeur est la même que celle du nouveau pion
+        Retourne un tuple (A,B,C):
+            A : Si au moins une des valeurs des voisins est différente de la valeur du nouveau pion, retourne True 
+            B : liste_1 (position df, relative, valeur) de pions de valeur opposée
+            C : liste_2 (position df, relative, valeur) de pions de même valeur que le nouveau pion
         """
         df_local=self.board.df.copy()
 
@@ -107,84 +111,95 @@ class Game():
         position_local=(position[0]-1,dict_col[position[1]])
 
         #Définition position relative voisins 
-        # --> sort une liste (position df, position relative) des plus proches voisins
+        # --> sort une liste (position df, position relative) des pions voisins
         neighbors_relative_position=list_relative_position.copy()
         neighbor_df_position=[]
         for relative_position in neighbors_relative_position:
             neighbor_position_col=position_local[1]+relative_position[1]
             neighbor_position_ind=position_local[0]+relative_position[0]
             if 0<=neighbor_position_col<8 and 0<=neighbor_position_ind<8 :
-                neighbor_df_position.append(((df_local.index[neighbor_position_ind],df_local.columns[neighbor_position_col]),relative_position))
-
+                neighbor_df_position.append(((int(df_local.index[neighbor_position_ind]),df_local.columns[neighbor_position_col]),relative_position))
+        
         #Valeur du df de chaque proche voisin si non nul 
-        # --> sort une liste (position df, position relative, valeur) des plus proches voisins du uniquement pour celles non nulles. 
+        # --> sort une liste (position df, position relative, valeur) des pions voisins uniquement si leur valeur est non nulle. 
         neighbor_df_values=[]
         for df_position in neighbor_df_position:
             value=df_local.at[df_position[0][0],df_position[0][1]]
-            if not pd.isna(value):
-                neighbor_df_values.append((df_position[0],df_position[1],value))
+            if value=="O" or value==True:
+                value_TF=True
+            elif value=="X" or value==False:
+                value_TF=False
+            else:
+                value_TF=value
+            if value_TF==True or value_TF==False:
+                neighbor_df_values.append((df_position[0],df_position[1],value_TF))
 
-        #Condition du jeu : retourne vrai si au moins une des couleurs de la liste 
-        #--> sort une liste (position df, position relative, valeur) des plus proches voisins de valeur opposée
-        if couleur==True:
-            symbol="O"
-        else:
-            symbol="X"
+        #Condition du jeu : retourne vrai si au moins un pion voisin de valeur opposé existe. 
+        #--> sort une liste_1 (position df, position relative, valeur) des plus proches voisins de valeur opposée
+        #--> sort une liste_2 (position df, position relative, valeur) des plus proches voisins de même valeur
         is_consistent=False
         self.neighbor_df_opposite_values=[]
         self.neighbor_df_same_values=[]
-        for value in neighbor_df_values:
-            if not value[2]==symbol:
-                self.neighbor_df_opposite_values.append(value)
+        for df_value in neighbor_df_values:
+            if not df_value[2]==couleur:
+                self.neighbor_df_opposite_values.append(df_value)
                 is_consistent=True
-            if value[2]==symbol:
-                self.neighbor_df_same_values.append(value)
-        print(self.neighbor_df_opposite_values)
-        # print(position,"\n",neighbor_df_position,"\n",neighbor_df_values,"\n",neighbor_df_opposite_values,is_consistent)
+            else:
+                self.neighbor_df_same_values.append(df_value)
+
         return is_consistent,self.neighbor_df_opposite_values,self.neighbor_df_same_values
     
     def check_opposite_neighbors_to_switch(self,neighbors):
-        df_local=self.board.df.copy()
-        neighbors_list=neighbors.copy()
-        self.pawns_to_return_list=[]
+        """
+        Prend en entrée la liste des pions voisins existants de valeurs opposés au pion "C" que l'on cherche à placer
+        Pour chaque pions "V" de la liste, recherche son prochain voisin "V+1" avec la fonction "check_voisin":
+        La boucle suivante est créé : 
+            On stocke le pion "V" dans une liste temporaire
+            On demande de checker le voisin "V+1" qui est dans la direction pion "C" - pion "V
+            Si le pion "V+1" est de couleur différente du pion "V" --> Stoppe la boucle
+            Si le pion "V+1" n'existe pas --> Stoppe la boucle et efface la liste temporaire
+            Si le pion "V+1" est de même couleur que le pion "V" --> Le pion "V+1" devient le nouveau pion "V"
+            On boucle ainsi "V+2","V+3",etc... jusqu'à ce qu'une des 2 premières conditions soit remplies. 
+            (le nouveau pion est stockée en début de boucle, on a donc en sortie une liste ("V","V+1","V+2","V+3",...)
+        Une fois sortie de la boucle, on stocke la liste temporaire dans la liste permanente de pions à retourner et on passe au pion "V" suivant.
+        Si la liste de pions à retourner n'est pas vide, la méthode renvoie Vrai. Sinon la méthode renvoie Faux.
+        """
+        neighbors_list=neighbors.copy() # Copie la liste de pions voisins
+        self.pawns_to_return_list=[]    # Creer une liste vide de pions à retourner comme attribut de classe
+        is_consistent=False             # Définit le return de la méthode comme Faux par défaut
+        
+        # Boucle pour chaque élémént de la liste des pions voisins de valeur opposés
         for neighbor in neighbors_list:
             stop=False
-            pawns_to_return_list_local=[]
-            while not stop==True:
-                origin=neighbor[0]
-                orientation=[]
-                orientation.append(neighbor[1])
-                value=neighbor[2]
-                print(origin,orientation,value)
+            pawns_to_return_list_temp=[]  #Creer une liste temporaire de pions à retourner           
+
+            #Boucle dans la direction "orientation" (position relative du pion voisin par rapport au pion d'origine)
+            while not stop==True:         
+                origin=neighbor[0]                  # origin = la position du pion dans le df ex:(4,'E')
+                orientation=[]                      # orientation = la position relative du pion par rapport au pion d'origine                                
+                orientation.append(neighbor[1])     # orientation :format liste --> ex:[(-1,0)]
+                value=neighbor[2]                   # value = couleur du pion True (O) ou False (X)
+                pawns_to_return_list_temp.append(origin)     # Ajoute le pion voisin dans la liste temporaire 
+                
+                # Appelle la fonction "check voisins" en prenant comme origine le piont voisin
                 resultat=self.check_neighbors(position=origin,list_relative_position=orientation,couleur=value)
-                print(resultat)
-                if resultat[0]==False and resultat[2]==[] and not pawns_to_return_list_local==[]:
-                    print(origin,"Faux et vide",resultat)
-                    pawns_to_return_list_local=None
-                    stop=True
-                    is_consistent=False
-                elif resultat[0]==False and not resultat[2]==[] and pawns_to_return_list_local==[]:
-                    print(origin,"Vraie",resultat)
-                    pawns_to_return_list_local.append(origin)
-                    stop=True
-                    is_consistent=False
-                elif resultat[0]==False and not resultat[2]==[]:
-                    print(origin,"Faux et opposé",resultat)
-                    pawns_to_return_list_local.append(origin)
-                    neighbor=resultat[2][0]
-                elif resultat[0]==True:
-                    print(origin,"Vraie",resultat)
-                    pawns_to_return_list_local.append(origin)
-                    stop=True
-                    is_consistent=True
-            print ("templistfinboucle",pawns_to_return_list_local)
-            try:
-                for pawns in pawns_to_return_list_local:
+
+                if resultat[0]==True :     # Si resultat[0] = booleen "pion voisin de valeur opposé existe" EST egale à True
+                    stop=True              # --> stoppe la boucle while
+                elif resultat[0]==False and resultat[2]==[]:        # Si resultat[2] = liste_pions_voisins_même_couleur EST vide.
+                    pawns_to_return_list_temp=[]                    # --> efface la liste temporaire
+                    stop=True                                       # --> stoppe la boucle while
+                elif resultat[0]==False and not resultat[2]==[]:    # Si resultat[2] = liste_pions_voisins_même_couleur N'EST PAS vide.
+                    neighbor=resultat[2][0]                         # --> le pion voisin devient la nouvelle origine
+                                                                    # --> la boucle while continue avec la nouvelle position origine
+        
+            try:     # --> ajoute les valeurs de la liste temporaire dans la liste definitive et définit le return à True
+                for pawns in pawns_to_return_list_temp:
                     self.pawns_to_return_list.append(pawns)
+                    is_consistent=True  #Condition du jeu : retourne vrai s'il existe au moins un pion à retourner.
             except:
                 None
 
-        print(f"liste de pions à retourner {self.pawns_to_return_list}")
         return is_consistent
 
 
