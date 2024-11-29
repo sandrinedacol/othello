@@ -1,0 +1,10 @@
+Bottleneck @ file:///croot/bottleneck_1731058641041/work
+numexpr @ file:///croot/numexpr_1730215937391/work
+numpy @ file:///croot/numpy_and_numpy_base_1708638617955/work/dist/numpy-1.26.4-cp312-cp312-linux_x86_64.whl#sha256=b8e59fcb10ab071cbeded47aed247ddfa1c902d595848c27f82021340e226134
+pandas @ file:///croot/pandas_1718308974269/work/dist/pandas-2.2.2-cp312-cp312-linux_x86_64.whl#sha256=92c518f7e09edd50b5caa5862636c51d6a29391803f3ada62f68aa52f27d8f92
+python-dateutil @ file:///croot/python-dateutil_1716495738603/work
+pytz @ file:///croot/pytz_1713974312559/work
+setuptools==75.1.0
+six @ file:///tmp/build/80754af9/six_1644875935023/work
+tzdata @ file:///croot/python-tzdata_1690578112552/work
+wheel==0.44.0
