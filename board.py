@@ -37,10 +37,15 @@ class Board():
         #Crée une liste pour chaque ligne numérotée et enregistre dans le dico
         for i in self.df.index:
             lst_for_row = []
-            lst_for_row.append(f'{i} | ')
+            lst_for_row.append(f'{i} ' + u'\u23D0')
             for j in self.df.columns:
-                lst_for_row.append(self.df.loc[i,j])
-                lst_for_row.append(' | ')
+                if self.df.loc[i,j] == 'X':
+                    lst_for_row.append('\033[36m' + ' ' + u'\u263B' + ' ' + '\033[0m')
+                elif self.df.loc[i,j] == 'O':
+                    lst_for_row.append('\033[33m' + ' ' + u'\u263B' + ' ' + '\033[0m')
+                else:
+                    lst_for_row.append(self.df.loc[i,j]*3)
+                lst_for_row.append(u'\u23D0')
             self.dico_board[i] = lst_for_row
         
         #Crée un string pour imprimer le board
