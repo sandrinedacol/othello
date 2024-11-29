@@ -95,13 +95,13 @@ def check_opposite_neighbors_to_switch(df,neighbors):
     return is_consistent
 
 df = pd.DataFrame(index = list(range(1,9)), columns = list('ABCDEFGH'))
-# df.at[4,"D"]=df.at[5,"E"]=df.at[6,"D"]=df.at[6,"C"]=df.at[5,"F"]=df.at[6,"B"]=df.at[4,"G"]="X"
-# df.at[5,"D"]=df.at[4,"E"]=df.at[3,"H"]="O"
-df.at[4,"D"]=df.at[5,"E"]="X"
-df.at[5,"D"]=df.at[4,"E"]="O"
+df.at[4,"D"]=df.at[5,"E"]=df.at[6,"D"]=df.at[6,"C"]=df.at[5,"F"]=df.at[6,"B"]=df.at[4,"G"]="X"
+df.at[5,"D"]=df.at[4,"E"]=df.at[3,"H"]="O"
+# df.at[4,"D"]=df.at[5,"E"]="X"
+# df.at[5,"D"]=df.at[4,"E"]="O"
 print(df)
 
 neighbors_relative_position=[(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)]
-voisins=check_neighbors(df,position=(3,"D"),couleur=False,list_relative_position=neighbors_relative_position)
+voisins=check_neighbors(df,position=(6,"E"),couleur=True,list_relative_position=neighbors_relative_position)
 print(voisins)
 check_opposite_neighbors_to_switch(df,voisins[1])
