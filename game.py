@@ -10,7 +10,6 @@ class Game():
         self.board = Board()                                # instance de Bord qui représente l'échiquier
         self.all_pawns = [Pawn(i) for i in range(1,65)]     # liste de tous les pions, chaque pion est une instance de Pawn
         self.step = 0                                       # entier incrémental, qui suit à quelle étape on est
-
         self.player = False                                 # bool qui désigne qui doit jouer à l'étape (les noirs ou les blancs)
         self.markers = {True: 'O', False: 'X'}
         self.neighbors_relative_position=[(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)] # position en relatif des 9 voisins
@@ -21,7 +20,7 @@ class Game():
     def add_initial_pawns(self):                            # pour chaque position, on joue une étape fictive :
         for position in ['d4', 'e4', 'e5', 'd5']:           # la liste est construite de manière à ce que les pions soient bien disposés : noir blanc noir blanc
             _ = self.convert_position_to_tuple(position)    # assigne la bonne valeur à self.position
-            self.put_pawn_on_board()                        # on place le pion sur l'échiquier
+            self.put_pawn_on_board(position)                        # on place le pion sur l'échiquier
             self.step += 1                                  # on passe à l'étape d'après
             self.player = not self.player                   # on change le joueur qui doit jouer l'étape d'après
 
