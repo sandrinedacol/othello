@@ -4,8 +4,8 @@ class Engine():
 
     def __init__(self):
         print('\nWelcome to the most beautiful Othello game ever!\n\n')
-        self.user_color = self.ask_user_color()         # user_color est la couleur choisie par l'utilisateur : noir ou blanc
-        _ = input('Ready?\n') 
+        self.user_color = self.ask_user_color()   # user_color est la couleur choisie par l'utilisateur : noir ou blanc
+        _ = input('Ready? (Press a key)\n') 
         self.quit = False
         while not self.quit:
             self.play_game()
@@ -17,7 +17,7 @@ class Engine():
             step_played = False
             while not step_played:
                 if self.user_color == self.game.player:     # si la couleur assignée à l'utilisateur est celle du prochain joueur
-                    position = input('Your turn:')          # si le prochain joueur est l'ordinateur
+                    position = input(f"{self.user_name} ({self.game.markers[self.game.player]}) : ")          # si le prochain joueur est l'ordinateur
                     if position.strip().lower() in ['q', 'quit', 'exit', 'exit()']:     # si l'utilisateur entre 'q' ou 'quit' ou 'exit' ou 'exit()',
                         return None
                     else:                                                               # sinon
@@ -31,7 +31,8 @@ class Engine():
         return again.strip().lower() in ['y', 'yes', 'oui', 'o', '']
 
     def ask_user_color(self):
-        user_color = input('Do you want to be Master of Blacks (B) or Whites (W)?')
+        self.user_name=str(input("Enter your unicorn or dragon name here : "))
+        user_color = input('\nDo you want to be Master of Blacks (B) or Whites (W)?')
         user_color = user_color.strip().upper()
         if user_color == 'B':
             print("Ok, you're black (symbol: X), you start.\n")
