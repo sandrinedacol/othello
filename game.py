@@ -1,3 +1,5 @@
+import numpy as np
+
 from board import *
 from pawn import *
 
@@ -8,47 +10,54 @@ class Game():
         self.board = Board()                                # instance de Bord qui représente l'échiquier
         self.all_pawns = [Pawn(i) for i in range(1,65)]     # liste de tous les pions, chaque pion est une instance de Pawn
         self.step = 0                                       # entier incrémental, qui suit à quelle étape on est
-        self.player = False # False si noir True si blanc   # bool qui désigne qui doit jouer à l'étape (les noirs ou les blancs)
+
+        self.player = False                                 # bool qui désigne qui doit jouer à l'étape (les noirs ou les blancs)
         self.markers = {True: 'O', False: 'X'}
         self.neighbors_relative_position=[(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)] # position en relatif des 9 voisins
+
         self.add_initial_pawns()                            # initialisation des 4 1er pions
         print(self.board)
 
-    def add_initial_pawns(self):
-        # pour chaque position, on joue une étape fictive :
-        for position in ['d4', 'e4', 'e5', 'd5']:       # la liste est construite de manière à ce que les pions soient bien disposés : noir blanc noir blanc
-            self.put_pawn_on_board(position)            # on place le pion sur l'échiquier
-            self.step += 1                              # on passe à l'étape d'après
-            self.player = not self.player               # on change le joueur qui doit jouer l'étape d'après
+    def add_initial_pawns(self):                            # pour chaque position, on joue une étape fictive :
+        for position in ['d4', 'e4', 'e5', 'd5']:           # la liste est construite de manière à ce que les pions soient bien disposés : noir blanc noir blanc
+            _ = self.convert_position_to_tuple(position)    # assigne la bonne valeur à self.position
+            self.put_pawn_on_board()                        # on place le pion sur l'échiquier
+            self.step += 1                                  # on passe à l'étape d'après
+            self.player = not self.player                   # on change le joueur qui doit jouer l'étape d'après
+
 
     def put_pawn_on_board(self, position):
-        # on choisit de quel pion on parle, via son index dans la liste de tous les pions
-        pawn = self.all_pawns[self.step]
-        # on change les attributs de ce pion
-        pawn.add_on_board(position, self.player)
-        # on ajoute le pion sur l'échiquier
-        self.board.add_pawn(pawn)
+        pawn = self.all_pawns[self.step]                    # on choisit de quel pion on parle, via son index dans la liste de tous les pion   
+        pawn.add_on_board(position, self.player)            # on change les attributs de ce pion
+        self.board.add_pawn(pawn)                           # on ajoute le pion sur l'échiquier
+
+        
         
     def play_next_step(self, position):
-        # est-ce que le joueur a le droit de poser le pion à cette position ? 
-        is_consistent = self.verify_position(position)
+        if position == None:
+            self.compute_best_position()
+            is_consistent = True
+        else:
+            is_consistent = self.convert_position_to_tuple(position)
+            if is_consistent:                                   
+                is_consistent = self.check_position()       # est-ce que le joueur a le droit de poser le pion à cette position ? 
         if is_consistent:
-            # si oui, on ajoute le pion sur l'échiquier
-            self.put_pawn_on_board(position)
-            # puis on retourne les pions à retourner
-            self.turn_pawns_over(position)
-            # on vérifie si les conditions d'arrêt de la partie sont atteintes
-            self.check_end_game()
-            # on passe à l'étape d'après et on change le joueur qui doit jouer l'étape d'après
-            self.step += 1
-            self.player = not self.player
-            print(self.board)
+
+            self.put_pawn_on_board(position)                # si oui, on ajoute le pion sur l'échiquier
+            self.turn_pawns_over(position)                  # puis on retourne les pions à retourner
+            self.check_end_game()                           # on vérifie si les conditions d'arrêt de la partie sont atteintes
+            self.step += 1                                  # on passe à l'étape d'après et on change le joueur qui doit jouer l'étape d'après
+            self.player = not self.player                   # et on change le joueur qui doit jouer l'étape d'après
+            print(self.board)     
+
         return is_consistent
         
-    def verify_position(self, position):
-        is_consistent = True
-        for check_condition in [self.verify_and_convert_position_to_tuple,self.verify_if_position_exists, self.verify_if_position_is_empty]:
-            is_consistent = check_condition(position)
+    def check_position(self):
+        for check_condition in [
+            self.check_if_position_exists,
+            self.check_if_position_is_empty
+            ]:
+            is_consistent = check_condition()
             if not is_consistent:
                 break
         if is_consistent:
@@ -57,11 +66,11 @@ class Game():
             is_consistent=self.check_opposite_neighbors_to_switch(neighbors=self.neighbor_df_opposite_values)
         return is_consistent
     
-    def verify_and_convert_position_to_tuple(self,position):
-        if not len(position)==2:
-            output=False
-        else:
+    def convert_position_to_tuple(self, position):
+        is_consistent = len(position) == 2
+        if is_consistent:
             try :
+
                 col=position[0].upper()
                 ind=int(position[1])
 
@@ -76,6 +85,11 @@ class Game():
         output = self.position[0] in df_local.index and self.position[1] in df_local.columns
         return output
 
+
+    def check_if_position_exists(self):
+        index_exists = self.position[0] in self.board.df.index
+        column_exists = self.position[1] in self.board.df.columns
+        return index_exists and column_exists
 
     def verify_if_position_is_empty(self, position):
         if pd.isna(self.board.df.at[self.position[0], self.position[1]]):
@@ -206,8 +220,46 @@ class Game():
         marker = self.markers[self.player]
         for pawn_position in self.pawns_to_return_list:
             self.board.df.at[pawn_position[0],pawn_position[1]] = marker
+      
+    def check_if_position_is_empty(self):
+        value = self.board.df.at[self.position[0], self.position[1]]
+        return value == ' '
 
     def check_end_game(self):
-        pass
+        # modifie game.in_progress si les conditions de fin de partie sont réunies
+        empty_squares = [(self.board.df.index[x], self.board.df.columns[y]) for x, y in zip(*np.where(self.board.df.values == ' '))]
+        is_consistent = False
+        for square in empty_squares:
+            self.position = square
+            is_consistent = self.check_position()   # à remplacer par les 2 méthodes de Romain : 'adjcent' et 'encadre'
+            if is_consistent:
+                break
+        if not is_consistent:
+            self.in_progress = False
 
+    def compute_score(self):
+        # return black_score, white_score
+        board_array = self.board.df.to_numpy()
+        values, counts = np.unique(board_array, return_counts=True)
+        black_score = counts[np.where(values=='X')[0][0]]
+        white_score = counts[np.where(values=='O')[0][0]]
+        if black_score != white_score:
+            empty_squares = counts[np.where(values==' ')[0][0]]
+            if black_score > white_score:
+                black_score += empty_squares
+            else:
+                white_score += empty_squares
+        return black_score, white_score
         
+    def compute_best_position(self):
+        consistent_positions = [] # à faire : pour toutes les positions, celles qui passent les conditions sont retenues
+        best_position, best_score = None, 0
+        for pos in consistent_positions:
+            fictive_board = Board()
+            fictive_board.df = self.board.df.copy()
+            self.position = pos
+            n_turned_pawns = 0 # à remplacer par le calcul des pions qui seraient retournés (effectué sur fictive_board)
+            if n_turned_pawns > best_score:
+                best_position, best_score = pos, n_turned_pawns
+        # self.position = best_position
+        _ = self.convert_position_to_tuple(input("position du PC:"))        # juste le temps d'écrire le reste
