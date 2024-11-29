@@ -3,7 +3,10 @@ from game import *
 class Engine():
 
     def __init__(self):
-        print('\nWelcome to the most beautiful Othello game ever!\n\n')
+
+        self.print_othello()
+        self.user_name=str(input("Enter your Unicorn or Dragon name here : "))
+        print(f'\nHi {self.user_name},\nWelcome to the most BEAUTIFUL & FUNNY & INTELLIGENT game ever!')
         self.user_color = self.ask_user_color()   # user_color est la couleur choisie par l'utilisateur : noir ou blanc
         _ = input('Ready? (Press a key)\n') 
         self.quit = False
@@ -33,14 +36,13 @@ class Engine():
         return again.strip().lower() in ['y', 'yes', 'oui', 'o', '']
 
     def ask_user_color(self):
-        self.user_name=str(input("Enter your unicorn or dragon name here : "))
-        user_color = input('\nDo you want to be Master of Blacks (B) or Whites (W)?')
+        user_color = input('Do you want to be Master of Blacks (B) or Whites (W)? ')
         user_color = user_color.strip().upper()
         if user_color == 'B':
-            print("Ok, you're black (symbol: X), you start.\n")
+            print("\nOk, you're black (symbol: X), you start.")
             return False             # noir = false
         elif user_color == 'W':
-            print("Ok, you're white (symbol: O), I start.\n")
+            print("\nOk, you're white (symbol: O), I start.")
             return True             # blanc = true
         else:
             return self.ask_user_color()
@@ -52,16 +54,25 @@ class Engine():
         else:
             user_score, machine_score = black_score, white_score
         if user_score > machine_score:
-            self.return_congrats()
-            print(f"You won {user_score} - {machine_score}.\n")
+            self.print_congrats()
+            print(f"You won {user_score} - {machine_score} and destroy all our dreams.\nAre you happy with that, {self.user_name}?\n")
         elif user_score == machine_score:
             print(f"\nDraw : {user_score} - {machine_score}.\n")
         else:
-            self.return_game_over()
-            print(f"You lost {user_score} - {machine_score}.\n")
+            self.print_game_over()
+            print(f"You lost {user_score} - {machine_score}.\nSorry {self.user_name}, you can't beat MAGIC !\n")
 
-    def return_congrats(self):
+    def print_congrats(self):
         print("\n\n ▗▄▄▖ ▗▄▖ ▗▖  ▗▖ ▗▄▄▖▗▄▄▖  ▗▄▖▗▄▄▄▖▗▄▄▖    \n▐▌   ▐▌ ▐▌▐▛▚▖▐▌▐▌   ▐▌ ▐▌▐▌ ▐▌ █ ▐▌       \n▐▌   ▐▌ ▐▌▐▌ ▝▜▌▐▌▝▜▌▐▛▀▚▖▐▛▀▜▌ █  ▝▀▚▖    \n▝▚▄▄▖▝▚▄▞▘▐▌  ▐▌▝▚▄▞▘▐▌ ▐▌▐▌ ▐▌ █ ▗▄▄▞▘\n\n")
 
-    def return_game_over(self):
+    def print_game_over(self):
         print("\n\n ▗▄▄▖▗▞▀▜▌▄▄▄▄  ▗▞▀▚▖     ▗▄▖ ▄   ▄ ▗▞▀▚▖ ▄▄▄\n▐▌   ▝▚▄▟▌█ █ █ ▐▛▀▀▘    ▐▌ ▐▌█   █ ▐▛▀▀▘█    \n▐▌▝▜▌     █   █ ▝▚▄▄▖    ▐▌ ▐▌ ▀▄▀  ▝▚▄▄▖█    \n▝▚▄▞▘                    ▝▚▄▞▘\n\n")
+
+    def print_welcome(self):
+        string = "\n\n░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓████████▓▒░▒▓█▓▒░      ░▒▓██████▓▒░ ░▒▓██████▓▒░░▒▓██████████████▓▒░░▒▓████████▓▒░ \n░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░     ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░        \n░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░     ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░        \n░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓██████▓▒░ ░▒▓█▓▒░     ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓██████▓▒░   \n░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░     ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░        \n░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░     ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░        \n ░▒▓█████████████▓▒░░▒▓████████▓▒░▒▓████████▓▒░▒▓██████▓▒░ ░▒▓██████▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓████████▓▒░ \n\n"
+        print(string)
+
+    def print_othello(self):
+        string = "\n\n\n\n\n\n\n\n░▒▓██████▓▒░▒▓████████▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓████████▓▒░▒▓█▓▒░      ░▒▓█▓▒░      ░▒▓██████▓▒░  \n░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░   ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░      ░▒▓█▓▒░     ░▒▓█▓▒░░▒▓█▓▒░ \n░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░   ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░      ░▒▓█▓▒░     ░▒▓█▓▒░░▒▓█▓▒░ \n░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░   ░▒▓████████▓▒░▒▓██████▓▒░ ░▒▓█▓▒░      ░▒▓█▓▒░     ░▒▓█▓▒░░▒▓█▓▒░ \n░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░   ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░      ░▒▓█▓▒░     ░▒▓█▓▒░░▒▓█▓▒░ \n░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░   ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░      ░▒▓█▓▒░     ░▒▓█▓▒░░▒▓█▓▒░ \n ░▒▓██████▓▒░  ░▒▓█▓▒░   ░▒▓█▓▒░░▒▓█▓▒░▒▓████████▓▒░▒▓████████▓▒░▒▓████████▓▒░▒▓██████▓▒░\n"
+        string += '          designed by      Romain the Fluorescent Dragon,\n                              Sandrine the Sparkling Panda,\n                                  & Dimitri the Red Hermaphroditic Ibex\n\n'
+        print(string)    
