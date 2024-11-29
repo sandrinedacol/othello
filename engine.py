@@ -7,8 +7,6 @@ class Engine():
     def __init__(self):
 
         self.print_othello()
-        self.user_name=str(input("Enter your Unicorn or Dragon name here : "))
-        print(f'\nHi {self.user_name},\nWelcome to the most BEAUTIFUL & FUNNY & INTELLIGENT game ever!')
         self.players=Player()
         self.user_color = self.ask_user_color()   # user_color est la couleur choisie par l'utilisateur : noir ou blanc
         _ = input('Ready? (Press a key)\n') 
@@ -19,24 +17,32 @@ class Engine():
 
     def play_game(self):
         self.game = Game()
-        while self.game.in_progress:                    # tant que les conditions sont réunies, le jeu continue
-            step_played = False
-            while not step_played:
-                if self.user_color == self.game.player:
-                    position_is_found = False
-                    while not position_is_found:
-                        position = input("\nYour call: ")     # si la couleur assignée à l'utilisateur est celle du prochain joueur
-                        position = input(f"{self.user_name} ({self.game.markers[self.game.player]}) : ")          # si le prochain joueur est l'ordinateur
-                    if position.strip().lower() in ['q', 'quit', 'exit', 'exit()']:     # si l'utilisateur entre 'q' ou 'quit' ou 'exit' ou 'exit()',
-                        return None
-                    else: 
-                        position_is_found = self.game.define_user_position(position)
-            else:
-                self.game.define_computer_position()
+        while self.game.in_progress: # tant que les conditions sont réunies, le jeu continue 
+            if self.players.game_mode==1 :
+                if self.user_color == self.game.color :    # si la couleur assignée à l'utilisateur est celle du prochain joueur
+                    self.input_position_for_players(current_player_name=self.players.player1_name)
+                else:
+                    self.game.define_computer_position()    # si le prochain joueur est l'ordinateur
+            if self.players.game_mode==2:
+                if self.user_color == self.game.color :    # si la couleur assignée à l'utilisateur est celle du prochain joueur
+                    self.input_position_for_players(current_player_name=self.players.player1_name)
+                else:
+                    self.input_position_for_players(current_player_name=self.players.player2_name)
             self.game.play_step()
             print(self.game.board)
         self.end_game()                                                             # une fois que les conditions d'arrêt de jeu changent le bool 'game.in_progress', on finit le jeu
-        
+
+    def input_position_for_players(self,current_player_name):
+        position_is_found = False
+        while not position_is_found:            
+            # position = input("\nYour call: ")     
+            position = input(f"{current_player_name} ({self.game.markers[self.game.color]}) : ") 
+            if position.strip().lower() in ['q', 'quit', 'exit', 'exit()']:     # si l'utilisateur entre 'q' ou 'quit' ou 'exit' ou 'exit()',
+                return None
+            else:           
+                position_is_found = self.game.define_user_position(position)
+
+
     def ask_for_play_again(self):     
         again = input("\nPlay again? [Y/n]\n")
         return again.strip().lower() in ['y', 'yes', 'oui', 'o', '']
