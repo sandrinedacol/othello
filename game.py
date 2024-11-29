@@ -65,7 +65,7 @@ class Game():
         if is_consistent:
             is_consistent=self.check_neighbors(position=self.position,list_relative_position=self.neighbors_relative_position,couleur=self.player)
         if is_consistent:
-            is_consistent=self.check_opposite_neighbors_to_switch(neighbors=self.neighbor_df_opposite_values)
+            is_consistent=self.check_opposite_neighbors_to_switch()
         return is_consistent
     
     def convert_position_to_tuple(self, position):
@@ -164,7 +164,7 @@ class Game():
 
         return is_consistent
     
-    def check_opposite_neighbors_to_switch(self,neighbors):
+    def check_opposite_neighbors_to_switch(self):
         """
         Prend en entrée la liste des pions voisins existants de valeurs opposés au pion "C" que l'on cherche à placer
         Pour chaque pions "V" de la liste, recherche son prochain voisin "V+1" avec la fonction "check_voisin":
@@ -179,7 +179,7 @@ class Game():
         Une fois sortie de la boucle, on stocke la liste temporaire dans la liste permanente de pions à retourner et on passe au pion "V" suivant.
         Si la liste de pions à retourner n'est pas vide, la méthode renvoie Vrai. Sinon la méthode renvoie Faux.
         """
-        neighbors_list=neighbors.copy() # Copie la liste de pions voisins
+        neighbors_list=self.neighbor_df_opposite_values.copy() # Copie la liste de pions voisins
         self.pawns_to_return_list=[]    # Creer une liste vide de pions à retourner comme attribut de classe
         is_consistent=False             # Définit le return de la méthode comme Faux par défaut
         
