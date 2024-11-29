@@ -14,16 +14,18 @@ class Engine():
     def play_game(self):
         self.game = Game()
         while self.game.in_progress:                    # tant que les conditions sont réunies, le jeu continue
-            step_played = False
-            while not step_played:
-                if self.user_color == self.game.player:     # si la couleur assignée à l'utilisateur est celle du prochain joueur
-                    position = input(f"{self.user_name} ({self.game.markers[self.game.player]}) : ")          # si le prochain joueur est l'ordinateur
-                    if position.strip().lower() in ['q', 'quit', 'exit', 'exit()']:     # si l'utilisateur entre 'q' ou 'quit' ou 'exit' ou 'exit()',
+            if self.user_color == self.game.color:
+                position_is_found = False
+                while not position_is_found:
+                    position = input("\nYour call: ")
+                    if position.strip().lower() in ['q', 'quit', 'exit', 'exit()']:
                         return None
-                    else:                                                               # sinon
-                        step_played = self.game.play_next_step(position)                # La prochaine étape est lancée avec le prochain pion posé à cette position
-                else:
-                    step_played = self.game.play_next_step(None)
+                    else: 
+                        position_is_found = self.game.define_user_position(position)
+            else:
+                self.game.define_computer_position()
+            self.game.play_step()
+            print(self.game.board)
         self.end_game()                                                             # une fois que les conditions d'arrêt de jeu changent le bool 'game.in_progress', on finit le jeu
         
     def ask_for_play_again(self):     
