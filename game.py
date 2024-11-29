@@ -105,7 +105,6 @@ class Game():
         self.put_pawn_on_board()
         self.turn_pawns_over()
         self.check_end_game()
-        
         self.step += 1 
         self.color = not self.color
         self.pawns_to_reverse = []
@@ -153,22 +152,22 @@ class Game():
 
 
     def define_computer_position(self):
-        self.compute_best_position(self.board.df)
+        self.compute_best_position()
         self.check_if_surrounded_pawns()
         
-    def compute_best_position(self, board):
+    def compute_best_position(self):
         valid_positions = self.make_inventory_of_valid_positions()
         best_position, best_score = None, 0
         for pos, turned_pawns in valid_positions.items():
             if len(turned_pawns) > best_score:
                 best_position, best_score = pos, len(turned_pawns)
         self.position = best_position
+        self.pawns_to_reverse = valid_positions[best_position]
         if self.position == None:
             pass
         else:
             _ = input('')
             print(f'I play {self.position[1]}{self.position[0]}')
-        # écrire comment utiliser la liste des pions à retourner déjà calculer au lieu de refaire le calcul
 
     def make_inventory_of_valid_positions(self):
         valid_positions = dict()
