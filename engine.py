@@ -36,14 +36,14 @@ class Engine():
         return again.strip().lower() in ['y', 'yes', 'oui', 'o', '']
 
     def ask_user_color(self):
-        user_color = input('Do you want to be Master of Blacks (B) or Whites (W)? ')
+        user_color = input('Do you want to be Yellow as the Sun (Y) or Blue as the Sky (B)? ')
         user_color = user_color.strip().upper()
         if user_color == 'B':
-            print("\nOk, you're black (symbol: X), you start.")
-            return False             # noir = false
-        elif user_color == 'W':
-            print("\nOk, you're white (symbol: O), I start.")
-            return True             # blanc = true
+            print("\nOk, you're blue, you start.")
+            return False             # blue = false
+        elif user_color == 'Y':
+            print("\nOk, you're yellow, I start.")
+            return True             # yellow = true
         else:
             return self.ask_user_color()
 
