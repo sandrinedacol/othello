@@ -19,7 +19,7 @@ class Engine():
             if self.user_color == self.game.color:
                 position_is_found = False
                 while not position_is_found:
-                    position = input("\nIt's your call: ")
+                    position = input("\nYour call: ")
                     if position.strip().lower() in ['q', 'quit', 'exit', 'exit()']:
                         return None
                     else: 

@@ -1,12 +1,15 @@
 import numpy as np
 import pandas as pd
+import itertools
+
+from board import *
 
 class Game():
 
     def __init__(self):
         self.markers = {True: 'O', False: 'X'}
         self.in_progress = True
-        self.board = pd.DataFrame(index = list(range(1,9)), columns = list('ABCDEFGH'))
+        self.board = Board()
         self.step = 0
         self.color = False
         self.position = None, None
@@ -39,49 +42,58 @@ class Game():
     def define_user_position(self, position):
         have_good_format = self.convert_position_to_tuple(position)
         if not have_good_format:
-            is_consistent = False
+            is_valid = False
         else:                         
             for check_condition in [
             self.check_if_position_exists,
             self.check_if_position_is_free,
             self.check_if_surrounded_pawns
             ]:
-                is_consistent = check_condition()
-                if not is_consistent:
+                is_valid = check_condition()
+                if not is_valid:
                     break
-        return is_consistent
+        if not is_valid:
+            pass
+        return is_valid
 
     def check_if_position_exists(self):
-        index_exists = self.position[0] in self.board.index
-        column_exists = self.position[1] in self.board.columns
+        index_exists = self.position[0] in self.board.df.index
+        column_exists = self.position[1] in self.board.df.columns
         return index_exists and column_exists
 
-    def check_if_position_is_free(self):
-        return pd.isna(self.board.at[self.position[0], self.position[1]])
+    def check_if_position_is_free(self): 
+        return self.board.df.at[self.position[0], self.position[1]] == ' '
 
     def check_if_surrounded_pawns(self):
-        opponent_color = self.markers[not self.color]
         self.pawns_to_reverse = []
+        opponent_color = self.markers[not self.color]
 
         def check_one_direction(delta_idx, delta_col):
-            columns = self.board.columns.tolist()
-            indexes = self.board.index.tolist()
+            columns = self.board.df.columns.tolist()
+            indexes = self.board.df.index.tolist()
             pawns_to_reverse = []
             idx, col = self.position
             marker = opponent_color
             while marker == opponent_color:
                 i = indexes.index(idx)
-                idx = indexes[i + delta_idx]
                 j = columns.index(col)
-                col = columns[j + delta_col]
-                marker = self.board[col][idx]
+                try:
+                    idx = indexes[i + delta_idx]
+                    col = columns[j + delta_col]
+                except IndexError:                      # quand le pion est posé sur une case au bord de l'échiquier
+                    break
+                marker = self.board.df[col][idx]
                 if marker == opponent_color:
                     pawns_to_reverse.append((idx, col))
             if marker == self.markers[self.color]:
                 self.pawns_to_reverse += pawns_to_reverse
 
-        for direction in [(0,1), (0,-1), (1,0), (-1,0), (1,1), (1,-1), (-1,1), (-1,-1)]:
-            check_one_direction(*direction)
+        dir = [0,1,-1]
+        for direction in list(itertools.product(dir, dir)):
+            try :
+                check_one_direction(*direction)
+            except SyntaxError:
+                pass
 
         return len(self.pawns_to_reverse) > 0
 
@@ -93,38 +105,43 @@ class Game():
         self.put_pawn_on_board()
         self.turn_pawns_over()
         self.check_end_game()
+        
         self.step += 1 
         self.color = not self.color
+        self.pawns_to_reverse = []
 
     def put_pawn_on_board(self):
-        self.board.at[self.position[0], self.position[1]] = self.markers[self.color]
+        self.board.df.at[self.position[0], self.position[1]] = self.markers[self.color]
 
     def turn_pawns_over(self):
         marker = self.markers[self.color]
         for pawn_position in self.pawns_to_reverse:
-            self.board.at[pawn_position] = marker
+            self.board.df.at[pawn_position] = marker
         
     def check_end_game(self):
-        empty_squares = [(self.board.index[x], self.board.columns[y]) for x, y in zip(*np.where(pd.isna(self.board.values)))]
-        is_consistent = False
+        self.color = not self.color     # on simule l'étape d'après
+        empty_squares = [(self.board.df.index[x], self.board.df.columns[y]) for x, y in zip(*np.where(self.board.df.values == ' '))]
+        is_valid = False
         for square in empty_squares:
             self.position = square
-            is_consistent = lambda x : True   # à remplacer par les 2 méthodes de Romain : 'adjcent' et 'encadre'
-            if is_consistent:
+            is_valid = self.check_if_surrounded_pawns()
+            if is_valid:
+                self.color = not self.color
                 break
-        if not is_consistent:
+        if not is_valid:
             self.in_progress = False
+        
 
 
 
 
 
     def compute_score(self):
-        board_array = self.board.to_numpy()
+        board_array = self.board.df.to_numpy()
         values, counts = np.unique(board_array, return_counts=True)
         black_score = counts[np.where(values=='X')[0][0]]
         white_score = counts[np.where(values=='O')[0][0]]
-        if black_score != white_score:
+        if black_score + white_score < 64 and black_score != white_score:
             empty_squares = counts[np.where(values==' ')[0][0]]
             if black_score > white_score:
                 black_score += empty_squares
@@ -136,18 +153,32 @@ class Game():
 
 
     def define_computer_position(self):
-        self.compute_best_position()
+        self.compute_best_position(self.board.df)
         self.check_if_surrounded_pawns()
         
-    def compute_best_position(self):
-        consistent_positions = [] # à faire : pour toutes les positions, celles qui passent les conditions sont retenues
+    def compute_best_position(self, board):
+        valid_positions = self.make_inventory_of_valid_positions()
         best_position, best_score = None, 0
-        for pos in consistent_positions:
-            fictive_board = self.board.copy()
-            self.position = pos
-            n_turned_pawns = 0 # à remplacer par le calcul des pions qui seraient retournés (effectué sur fictive_board)
-            if n_turned_pawns > best_score:
-                best_position, best_score = pos, n_turned_pawns
-        # self.position = best_position
-        _ = self.convert_position_to_tuple(input("\n[dev mode] position du PC: "))        # juste le temps d'écrire le reste
-        print(f'\nI play {self.position[1]}{self.position[0]}')
+        for pos, turned_pawns in valid_positions.items():
+            if len(turned_pawns) > best_score:
+                best_position, best_score = pos, len(turned_pawns)
+        self.position = best_position
+        if self.position == None:
+            pass
+        else:
+            _ = input('')
+            print(f'I play {self.position[1]}{self.position[0]}')
+        # écrire comment utiliser la liste des pions à retourner déjà calculer au lieu de refaire le calcul
+
+    def make_inventory_of_valid_positions(self):
+        valid_positions = dict()
+        for col in self.board.df.columns:
+            for idx in self.board.df.index:
+                self.position = (idx, col)
+                self.pawns_to_reverse = []
+                is_valid = self.check_if_position_is_free()
+                if is_valid:
+                    is_valid = self.check_if_surrounded_pawns()
+                if is_valid:
+                    valid_positions[(idx, col)] = self.pawns_to_reverse[:]
+        return valid_positions
