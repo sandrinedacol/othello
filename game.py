@@ -9,6 +9,7 @@ class Game():
         self.all_pawns = [Pawn(i) for i in range(1,65)]     # liste de tous les pions, chaque pion est une instance de Pawn
         self.step = 0                                       # entier incrémental, qui suit à quelle étape on est
         self.player = False # False si noir True si blanc   # bool qui désigne qui doit jouer à l'étape (les noirs ou les blancs)
+        self.markers = {True: 'O', False: 'X'}
         self.neighbors_relative_position=[(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)] # position en relatif des 9 voisins
         self.add_initial_pawns()                            # initialisation des 4 1er pions
         print(self.board)
@@ -27,9 +28,6 @@ class Game():
         pawn.add_on_board(position, self.player)
         # on ajoute le pion sur l'échiquier
         self.board.add_pawn(pawn)
-        # on montre le résulat du pion posé à l'utilisateur
-        if self.step > 3:
-            print(self.board)
         
     def play_next_step(self, position):
         # est-ce que le joueur a le droit de poser le pion à cette position ? 
@@ -44,6 +42,7 @@ class Game():
             # on passe à l'étape d'après et on change le joueur qui doit jouer l'étape d'après
             self.step += 1
             self.player = not self.player
+            print(self.board)
         return is_consistent
         
     def verify_position(self, position):
@@ -52,9 +51,9 @@ class Game():
             is_consistent = check_condition(position)
             if not is_consistent:
                 break
-        if is_consistent==True:
-            is_consistent=self.check_neighbors(position=self.position,list_relative_position=self.neighbors_relative_position,couleur=self.player)[0]
-        if is_consistent==True:
+        if is_consistent:
+            is_consistent=self.check_neighbors(position=self.position,list_relative_position=self.neighbors_relative_position,couleur=self.player)
+        if is_consistent:
             is_consistent=self.check_opposite_neighbors_to_switch(neighbors=self.neighbor_df_opposite_values)
         return is_consistent
     
@@ -147,7 +146,7 @@ class Game():
             else:
                 self.neighbor_df_same_values.append(df_value)
 
-        return is_consistent,self.neighbor_df_opposite_values,self.neighbor_df_same_values
+        return is_consistent
     
     def check_opposite_neighbors_to_switch(self,neighbors):
         """
@@ -184,14 +183,14 @@ class Game():
                 # Appelle la fonction "check voisins" en prenant comme origine le piont voisin
                 resultat=self.check_neighbors(position=origin,list_relative_position=orientation,couleur=value)
 
-                if resultat[0]==True :     # Si resultat[0] = booleen "pion voisin de valeur opposé existe" EST egale à True
+                if resultat==True :     # Si resultat[0] = booleen "pion voisin de valeur opposé existe" EST egale à True
                     stop=True              # --> stoppe la boucle while
-                elif resultat[0]==False and resultat[2]==[]:        # Si resultat[2] = liste_pions_voisins_même_couleur EST vide.
-                    pawns_to_return_list_temp=[]                    # --> efface la liste temporaire
-                    stop=True                                       # --> stoppe la boucle while
-                elif resultat[0]==False and not resultat[2]==[]:    # Si resultat[2] = liste_pions_voisins_même_couleur N'EST PAS vide.
-                    neighbor=resultat[2][0]                         # --> le pion voisin devient la nouvelle origine
-                                                                    # --> la boucle while continue avec la nouvelle position origine
+                elif resultat==False and self.neighbor_df_same_values==[]:    #  Si resultat EST faux et liste_pions_voisins_même_couleur EST vide.
+                    pawns_to_return_list_temp=[]                              # --> efface la liste temporaire
+                    stop=True                                                 # --> stoppe la boucle while
+                elif resultat==False and not self.neighbor_df_same_values==[]:      # Si resultat EST faux et liste_pions_voisins_même_couleur N'EST PAS vide.
+                    neighbor=self.neighbor_df_same_values[0]                       # --> le pion voisin devient la nouvelle origine
+                                                                                    # --> la boucle while continue avec la nouvelle position origine
         
             try:     # --> ajoute les valeurs de la liste temporaire dans la liste definitive et définit le return à True
                 for pawns in pawns_to_return_list_temp:
@@ -204,7 +203,9 @@ class Game():
 
 
     def turn_pawns_over(self, position):
-        pass
+        marker = self.markers[self.player]
+        for pawn_position in self.pawns_to_return_list:
+            self.board.df.at[pawn_position[0],pawn_position[1]] = marker
 
     def check_end_game(self):
         pass
